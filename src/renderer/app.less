@@ -1,0 +1,26 @@
+/*
+ * @NOTE: Prepend a `~` to css file paths that are in your node_modules
+ *        See https://github.com/webpack-contrib/sass-loader#imports
+ */
+@import '~antd/dist/antd.less';
+
+body {
+  display: flex;
+  user-select: none;
+}
+
+#root {
+  display: flex;
+  width: 100%;
+  overflow: hidden;
+
+  #layout_sideBar {
+    height: 100vh;
+    width: 64px;
+  }
+
+  #layout_container {
+    flex: 1;
+    overflow-y: auto;
+  }
+}
