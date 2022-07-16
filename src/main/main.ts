@@ -45,21 +45,22 @@ ipcMain.handle('capture-window', async () => {
 });
 
 ipcMain.on('window-control', async (_event, args) => {
-  const arg = args[0];
   const window = BrowserWindow.getFocusedWindow();
+  if (!window) return;
+  const arg = args[0];
   switch (arg.control) {
     case 'minimize':
-      window?.minimize();
+      window.minimize();
       break;
     case 'maximize':
-      if (window?.isMaximized()) {
-        window?.restore();
+      if (window.isMaximized()) {
+        window.restore();
       } else {
-        window?.maximize();
+        window.maximize();
       }
       break;
     case 'close':
-      window?.close();
+      window.close();
       break;
     default:
   }
