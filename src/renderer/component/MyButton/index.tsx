@@ -1,27 +1,21 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import { Button as AntdButton, ButtonProps } from 'antd';
-import type Group from 'antd/es/button/button-group';
-
-interface CompoundedComponent
-  extends React.ForwardRefExoticComponent<
-    ButtonProps & React.RefAttributes<HTMLElement>
-  > {
-  Group: typeof Group;
-  __ANT_BUTTON: boolean;
-}
 
 const Button = styled(AntdButton)`
-  border-radius: 5px;
+  border-radius: 5px !important;
 `;
 
 const InternalButton: React.ForwardRefRenderFunction<unknown, ButtonProps> = (
-  props
+  props,
+  ref
 ) => {
+  const buttonRef = ref as never;
   return (
     <Button
       // eslint-disable-next-line react/jsx-props-no-spreading
       {...props}
+      ref={buttonRef}
       onFocus={(e) => {
         e.target.blur();
       }}
@@ -29,8 +23,6 @@ const InternalButton: React.ForwardRefRenderFunction<unknown, ButtonProps> = (
   );
 };
 
-const MyButton = React.forwardRef<unknown, ButtonProps>(
-  InternalButton
-) as CompoundedComponent;
+const MyButton = React.forwardRef<unknown, ButtonProps>(InternalButton);
 
 export default MyButton;

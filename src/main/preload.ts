@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
-export type Channels = 'ipc-example' | 'window-control';
+export type Channels = 'ipc-example' | 'window-control' | 'capture-window';
 
 contextBridge.exposeInMainWorld('electron', {
   ipcRenderer: {
@@ -16,6 +16,9 @@ contextBridge.exposeInMainWorld('electron', {
     },
     once(channel: Channels, func: (...args: unknown[]) => void) {
       ipcRenderer.once(channel, (_event, ...args) => func(...args));
+    },
+    invoke(channel: Channels, ...args: unknown[]) {
+      return ipcRenderer.invoke(channel, ...args);
     },
   },
 });

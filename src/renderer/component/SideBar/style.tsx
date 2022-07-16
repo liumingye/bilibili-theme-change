@@ -10,7 +10,7 @@ const Style = styled.div`
   justify-content: space-between;
   align-items: center;
 
-  background-color: #f1f2f3;
+  /* background-color: #f1f2f3; */
 
   -webkit-app-region: drag;
 
@@ -34,7 +34,7 @@ const Style = styled.div`
     gap: 16px;
     grid-gap: 16px;
 
-    button.ant-btn {
+    button {
       display: flex;
       flex-direction: column;
       align-items: center;

@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "experimentalDecorators": true,
+    "useDefineForClassFields": true,
     "incremental": true,
     "target": "es2021",
     "module": "commonjs",

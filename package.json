@@ -7,6 +7,7 @@
     "typescript",
     "ts",
     "sass",
+    "less",
     "webpack",
     "hot",
     "reload"
@@ -55,7 +56,7 @@
     "*.json,.{eslintrc,prettierrc}": [
       "prettier --ignore-path .eslintignore --parser json --write"
     ],
-    "*.{css,scss}": [
+    "*.{css,scss,less}": [
       "prettier --ignore-path .eslintignore --single-quote --write"
     ],
     "*.{html,md,yml}": [
@@ -109,11 +110,12 @@
   },
   "dependencies": {
     "antd": "^4.21.6",
+    "axios": "^0.27.2",
     "electron-debug": "^3.2.0",
     "electron-log": "^4.4.7",
     "electron-updater": "^5.0.3",
-    "less": "^4.1.3",
-    "less-loader": "^11.0.0",
+    "mobx": "^6.6.1",
+    "mobx-react": "^7.5.2",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "react-router-dom": "^6.3.0",
@@ -129,6 +131,7 @@
     "@types/react": "^18.0.9",
     "@types/react-dom": "^18.0.4",
     "@types/react-test-renderer": "^18.0.0",
+    "@types/sprintf-js": "^1.1.2",
     "@types/styled-components": "^5.1.25",
     "@types/terser-webpack-plugin": "^5.0.4",
     "@types/webpack-bundle-analyzer": "^4.4.1",
@@ -140,7 +143,7 @@
     "core-js": "^3.22.5",
     "cross-env": "^7.0.3",
     "css-loader": "^6.7.1",
-    "css-minimizer-webpack-plugin": "^3.4.1",
+    "css-minimizer-webpack-plugin": "^4.0.0",
     "detect-port": "^1.3.0",
     "electron": "^18.2.3",
     "electron-builder": "^23.0.3",
@@ -166,14 +169,14 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^28.1.0",
     "jest-environment-jsdom": "^28.1.0",
+    "less": "^4.1.3",
+    "less-loader": "^11.0.0",
     "lint-staged": "^12.4.1",
     "mini-css-extract-plugin": "^2.6.0",
     "prettier": "^2.6.2",
     "react-refresh": "^0.13.0",
     "react-test-renderer": "^18.1.0",
     "rimraf": "^3.0.2",
-    "sass": "^1.51.0",
-    "sass-loader": "^12.6.0",
     "style-loader": "^3.3.1",
     "terser-webpack-plugin": "^5.3.1",
     "ts-jest": "^28.0.2",

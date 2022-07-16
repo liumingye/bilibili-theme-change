@@ -17,7 +17,7 @@ if (process.env.NODE_ENV === 'production') {
   checkNodeEnv('development');
 }
 
-const port = process.env.PORT || 31212;
+const port = process.env.PORT || 10612;
 const manifest = path.resolve(webpackPaths.dllPath, 'renderer.json');
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const requiredByDLLConfig = module.parent!.filename.includes(
@@ -63,6 +63,28 @@ const configuration: webpack.Configuration = {
 
   module: {
     rules: [
+      {
+        test: /\.less$/,
+        use: [
+          {
+            loader: 'style-loader',
+          },
+          {
+            loader: 'css-loader', // translates CSS into CommonJS
+          },
+          {
+            loader: 'less-loader', // compiles Less to CSS
+            options: {
+              lessOptions: {
+                modifyVars: {
+                  'btn-text-hover-bg': 'rgba(0, 0, 0, 0.1)',
+                },
+                javascriptEnabled: true,
+              },
+            },
+          },
+        ],
+      },
       {
         test: /\.s?css$/,
         use: [

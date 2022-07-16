@@ -24,28 +24,6 @@ const configuration: webpack.Configuration = {
           },
         },
       },
-      {
-        test: /\.less$/,
-        use: [
-          {
-            loader: 'style-loader',
-          },
-          {
-            loader: 'css-loader', // translates CSS into CommonJS
-          },
-          {
-            loader: 'less-loader', // compiles Less to CSS
-            options: {
-              lessOptions: {
-                modifyVars: {
-                  'btn-text-hover-bg': 'rgba(0, 0, 0, 0.1)',
-                },
-                javascriptEnabled: true,
-              },
-            },
-          },
-        ],
-      },
     ],
   },
 

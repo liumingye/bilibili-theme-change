@@ -9,7 +9,7 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, session } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
@@ -29,6 +29,19 @@ ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
   console.log(msgTemplate(arg));
   event.reply('ipc-example', msgTemplate('pong'));
+});
+
+ipcMain.handle('capture-window', async () => {
+  // return 111;
+  if (mainWindow) {
+    const image = await mainWindow.capturePage();
+    return {
+      buffer: image.getBitmap(),
+      width: image.getSize().width,
+      height: image.getSize().height,
+    };
+  }
+  return false;
 });
 
 ipcMain.on('window-control', async (_event, args) => {
@@ -63,6 +76,7 @@ const isDebug =
 if (isDebug) {
   require('electron-debug')();
 }
+// require('electron-debug')();
 
 const installExtensions = async () => {
   const installer = require('electron-devtools-installer');
@@ -103,7 +117,7 @@ const createWindow = async () => {
     },
   });
 
-  mainWindow.loadURL(resolveHtmlPath('/'));
+  mainWindow.loadURL(resolveHtmlPath('index.html'));
 
   mainWindow.on('ready-to-show', () => {
     if (!mainWindow) {
@@ -132,6 +146,17 @@ const createWindow = async () => {
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
   new AppUpdater();
+
+  // 跨域处理
+  session.defaultSession.webRequest.onHeadersReceived(
+    { urls: ['http://lab.liumingye.cn/*'] },
+    (details, callback) => {
+      if (details.resourceType === 'xhr' && details.responseHeaders) {
+        details.responseHeaders['Access-Control-Allow-Origin'] = ['*'];
+        callback({ responseHeaders: details.responseHeaders });
+      }
+    }
+  );
 };
 
 /**
