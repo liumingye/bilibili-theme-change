@@ -36,7 +36,7 @@ const initCtx = () => {
   Object.assign(canvas.style, style);
   canvas.style.zIndex = '9000';
   const gl = canvas.getContext('webgl2', {
-    premultipliedAlpha: !0,
+    premultipliedAlpha: true,
   }) as WebGL2RenderingContext;
   gl.clearColor(0, 0, 0, 0);
   const vs = `#version 300 es
@@ -92,7 +92,7 @@ void main() {
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
   gl.bufferData(gl.ARRAY_BUFFER, srcData, gl.STATIC_DRAW);
   gl.enableVertexAttribArray(0);
-  gl.vertexAttribPointer(0, 2, gl.FLOAT, !0, 8, 0);
+  gl.vertexAttribPointer(0, 2, gl.FLOAT, true, 8, 0);
   return { canvas, gl, shader: shaderInstance };
 };
 
