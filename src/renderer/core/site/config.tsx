@@ -55,7 +55,7 @@ export const config = {
             rule: /<li class="col-md-7 col-sm-4 col-xs-3">(.*?)<\/li>/g,
           },
           id: {
-            rule: /"\/voddetail\/(\d+).html"/,
+            rule: /"\/voddetail\/(?<id>\d+).html"/,
             index: 1,
           },
           cover: {
@@ -93,6 +93,12 @@ export const config = {
 
 export const getCurrentSite = () => {
   return config.site[config.currentSite];
+};
+
+export const getCate = () => {
+  const index = config.currentSite;
+  const site = config.site[index];
+  return site.cate;
 };
 
 export default config;

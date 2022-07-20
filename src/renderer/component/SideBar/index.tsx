@@ -16,12 +16,13 @@ import Style from './style';
 
 let ctx: {
   canvas: HTMLCanvasElement;
-  gl: WebGL2RenderingContext;
+  context: WebGL2RenderingContext;
   shader: Shader;
 } | null = null;
 
-const clamp = (max: number, min: number, value: number) =>
-  Math.max(min, Math.min(value, max));
+const clamp = (max: number, min: number, value: number) => {
+  return Math.min(Math.max(value, min), max);
+};
 
 const initCtx = () => {
   const style = {
@@ -31,14 +32,18 @@ const initCtx = () => {
     width: '100%',
     height: '100%',
     pointerEvents: 'none',
+    'z-index': '9999',
   };
+
   const canvas = document.createElement('canvas');
   Object.assign(canvas.style, style);
-  canvas.style.zIndex = '9000';
-  const gl = canvas.getContext('webgl2', {
+
+  const context = canvas.getContext('webgl2', {
     premultipliedAlpha: true,
   }) as WebGL2RenderingContext;
-  gl.clearColor(0, 0, 0, 0);
+
+  context.clearColor(0, 0, 0, 0);
+
   const vs = `#version 300 es
 precision mediump float;
 
@@ -49,8 +54,8 @@ out vec2 position;
 void main() {
   position = i_position;
   gl_Position = vec4(position, 0., 1.);
-}
-`;
+}`;
+
   const fs = `#version 300 es
 precision mediump float;
 
@@ -79,21 +84,21 @@ void main() {
     uv.y = 1. - uv.y;
     fragColor = texture(screen, uv).bgra;
   }
-}
-`;
-  const shaderInstance = new Shader({ gl, vs, fs });
-  shaderInstance.use();
+}`;
+
+  const shader = new Shader({ context, vs, fs });
+  shader.use();
 
   const srcData = new Float32Array([-1, 1, -1, -1, 1, 1, 1, -1]);
-  const vertexArrayObject = gl.createVertexArray();
-  const buffer = gl.createBuffer();
+  const vertexArrayObject = context.createVertexArray();
+  const buffer = context.createBuffer();
 
-  gl.bindVertexArray(vertexArrayObject);
-  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-  gl.bufferData(gl.ARRAY_BUFFER, srcData, gl.STATIC_DRAW);
-  gl.enableVertexAttribArray(0);
-  gl.vertexAttribPointer(0, 2, gl.FLOAT, true, 8, 0);
-  return { canvas, gl, shader: shaderInstance };
+  context.bindVertexArray(vertexArrayObject);
+  context.bindBuffer(context.ARRAY_BUFFER, buffer);
+  context.bufferData(context.ARRAY_BUFFER, srcData, context.STATIC_DRAW);
+  context.enableVertexAttribArray(0);
+  context.vertexAttribPointer(0, 2, context.FLOAT, true, 8, 0);
+  return { canvas, context, shader };
 };
 
 const themeTransition = async (
@@ -108,7 +113,7 @@ const themeTransition = async (
   if (!ctx) {
     ctx = initCtx();
   }
-  const { canvas, gl, shader } = ctx;
+  const { canvas, context, shader } = ctx;
   const animationTime = 500;
   const aspect = width / height;
   const focusAxis = [
@@ -125,52 +130,52 @@ const themeTransition = async (
   canvas.width = width;
   canvas.height = height;
   document.body.appendChild(canvas);
-  gl.viewport(0, 0, canvas.width, canvas.height);
+  context.viewport(0, 0, canvas.width, canvas.height);
   shader.setUniform('aspect', 'FLOAT', aspect);
   shader.setUniform('center', 'VEC2', center);
   shader.setUniform('scale', 'FLOAT', scale);
   shader.setUniform('inside', 'FLOAT', Number(theme === 'light'));
   const imageData = new ImageData(new Uint8ClampedArray(buffer), width, height);
-  const texture = gl.createTexture();
-  gl.activeTexture(gl.TEXTURE0);
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.texParameteri(
-    gl.TEXTURE_2D,
-    gl.TEXTURE_WRAP_S,
+  const texture = context.createTexture();
+  context.activeTexture(context.TEXTURE0);
+  context.bindTexture(context.TEXTURE_2D, texture);
+  context.texParameteri(
+    context.TEXTURE_2D,
+    context.TEXTURE_WRAP_S,
     WebGL2RenderingContext.CLAMP_TO_EDGE
   );
-  gl.texParameteri(
-    gl.TEXTURE_2D,
-    gl.TEXTURE_WRAP_T,
+  context.texParameteri(
+    context.TEXTURE_2D,
+    context.TEXTURE_WRAP_T,
     WebGL2RenderingContext.CLAMP_TO_EDGE
   );
-  gl.texParameteri(
-    gl.TEXTURE_2D,
-    gl.TEXTURE_MIN_FILTER,
+  context.texParameteri(
+    context.TEXTURE_2D,
+    context.TEXTURE_MIN_FILTER,
     WebGL2RenderingContext.LINEAR
   );
-  gl.texParameteri(
-    gl.TEXTURE_2D,
-    gl.TEXTURE_MAG_FILTER,
+  context.texParameteri(
+    context.TEXTURE_2D,
+    context.TEXTURE_MAG_FILTER,
     WebGL2RenderingContext.LINEAR
   );
-  gl.texImage2D(
-    gl.TEXTURE_2D,
+  context.texImage2D(
+    context.TEXTURE_2D,
     0,
-    gl.RGBA,
-    gl.RGBA,
-    gl.UNSIGNED_BYTE,
+    context.RGBA,
+    context.RGBA,
+    context.UNSIGNED_BYTE,
     imageData
   );
-  gl.activeTexture(gl.TEXTURE0);
-  gl.bindTexture(gl.TEXTURE_2D, texture);
+  context.activeTexture(context.TEXTURE0);
+  context.bindTexture(context.TEXTURE_2D, texture);
   const bezier = Bezier(0.65, 0, 0.35, 1);
   let startTime = -1;
   const draw = (time: number) => {
-    gl.clear(gl.COLOR_BUFFER_BIT);
+    context.clear(context.COLOR_BUFFER_BIT);
     const $ = clamp((time - startTime) / animationTime, 0, 1);
     shader.setUniform('pct', 'FLOAT', bezier($));
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    context.drawArrays(context.TRIANGLE_STRIP, 0, 4);
   };
   return new Promise<void>((resolve) => {
     const callback = (time: number) => {

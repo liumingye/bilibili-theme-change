@@ -1,19 +1,19 @@
 const loadShader = (
-  gl: WebGL2RenderingContext,
+  context: WebGL2RenderingContext,
   type: number,
   source: string
 ) => {
-  const shader = gl.createShader(type);
+  const shader = context.createShader(type);
   if (!shader) {
     throw new Error('can not create shader');
   }
-  gl.shaderSource(shader, source);
-  gl.compileShader(shader);
-  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    const errMsg = `An error occurred compiling the shaders: ${gl.getShaderInfoLog(
+  context.shaderSource(shader, source);
+  context.compileShader(shader);
+  if (!context.getShaderParameter(shader, context.COMPILE_STATUS)) {
+    const errMsg = `An error occurred compiling the shaders: ${context.getShaderInfoLog(
       shader
     )}`;
-    gl.deleteShader(shader);
+    context.deleteShader(shader);
     throw new Error(errMsg);
   }
   return shader;
@@ -31,14 +31,14 @@ export type UType =
   | 'MAT4';
 
 interface ShaderOptions {
-  gl: WebGL2RenderingContext;
+  context: WebGL2RenderingContext;
   vs: string;
   fs: string;
   transformFeedbackVaryings?: string[];
 }
 
 export default class Shader {
-  gl: WebGL2RenderingContext;
+  context: WebGL2RenderingContext;
 
   program: WebGLProgram;
 
@@ -46,33 +46,33 @@ export default class Shader {
 
   uniformBuffers: Record<string, WebGLBuffer | null>;
 
-  constructor({ gl, vs, fs, transformFeedbackVaryings }: ShaderOptions) {
-    this.gl = gl;
-    const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vs);
-    const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fs);
-    const shaderProgram = gl.createProgram();
+  constructor({ context, vs, fs, transformFeedbackVaryings }: ShaderOptions) {
+    this.context = context;
+    const vertexShader = loadShader(context, context.VERTEX_SHADER, vs);
+    const fragmentShader = loadShader(context, context.FRAGMENT_SHADER, fs);
+    const shaderProgram = context.createProgram();
     if (!shaderProgram) {
       throw new Error('can not create shader program');
     }
 
     this.program = shaderProgram;
 
-    gl.attachShader(shaderProgram, vertexShader);
-    gl.attachShader(shaderProgram, fragmentShader);
+    context.attachShader(shaderProgram, vertexShader);
+    context.attachShader(shaderProgram, fragmentShader);
 
     if (transformFeedbackVaryings) {
-      gl.transformFeedbackVaryings(
+      context.transformFeedbackVaryings(
         shaderProgram,
         transformFeedbackVaryings,
-        gl.INTERLEAVED_ATTRIBS
+        context.INTERLEAVED_ATTRIBS
       );
     }
-    gl.linkProgram(shaderProgram);
-    gl.deleteShader(vertexShader);
-    gl.deleteShader(fragmentShader);
-    if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+    context.linkProgram(shaderProgram);
+    context.deleteShader(vertexShader);
+    context.deleteShader(fragmentShader);
+    if (!context.getProgramParameter(shaderProgram, context.LINK_STATUS)) {
       throw new Error(
-        `Unable to initialize the shader program: ${gl.getProgramInfoLog(
+        `Unable to initialize the shader program: ${context.getProgramInfoLog(
           shaderProgram
         )}`
       );
@@ -82,7 +82,7 @@ export default class Shader {
   }
 
   use() {
-    this.gl.useProgram(this.program);
+    this.context.useProgram(this.program);
   }
 
   setUniform(name: string, type: 'BOOLEAN', value: boolean): void;
@@ -98,57 +98,57 @@ export default class Shader {
   setUniform(name: string, type: UType, value: never) {
     let location = this.locations[name];
     if (!location) {
-      location = this.gl.getUniformLocation(this.program, name);
+      location = this.context.getUniformLocation(this.program, name);
       this.locations[name] = location;
     }
     switch (type) {
       case 'BOOLEAN':
-        this.gl.uniform1i(location, Number(value));
+        this.context.uniform1i(location, Number(value));
         break;
       case 'INT':
-        this.gl.uniform1i(location, Math.round(value));
+        this.context.uniform1i(location, Math.round(value));
         break;
       case 'FLOAT':
-        this.gl.uniform1f(location, value);
+        this.context.uniform1f(location, value);
         break;
       case 'VEC2':
-        this.gl.uniform2fv(location, value);
+        this.context.uniform2fv(location, value);
         break;
       case 'VEC3':
-        this.gl.uniform3fv(location, value);
+        this.context.uniform3fv(location, value);
         break;
       case 'VEC4':
-        this.gl.uniform4fv(location, value);
+        this.context.uniform4fv(location, value);
         break;
       case 'MAT2':
-        this.gl.uniformMatrix2fv(location, false, value);
+        this.context.uniformMatrix2fv(location, false, value);
         break;
       case 'MAT3':
-        this.gl.uniformMatrix3fv(location, false, value);
+        this.context.uniformMatrix3fv(location, false, value);
         break;
       case 'MAT4':
-        this.gl.uniformMatrix4fv(location, false, value);
+        this.context.uniformMatrix4fv(location, false, value);
         break;
       default:
     }
   }
 
   setUniformBuffer(name: string, data: Float32Array) {
-    const { gl } = this;
+    const { context } = this;
     let buffer = this.uniformBuffers[name];
     if (!buffer) {
-      buffer = gl.createBuffer();
-      gl.bindBuffer(gl.UNIFORM_BUFFER, buffer);
-      gl.uniformBlockBinding(this.program, 0, 0);
-      gl.bindBufferBase(gl.UNIFORM_BUFFER, 0, buffer);
+      buffer = context.createBuffer();
+      context.bindBuffer(context.UNIFORM_BUFFER, buffer);
+      context.uniformBlockBinding(this.program, 0, 0);
+      context.bindBufferBase(context.UNIFORM_BUFFER, 0, buffer);
       this.uniformBuffers[name] = buffer;
     }
 
-    gl.bindBuffer(gl.UNIFORM_BUFFER, buffer);
-    gl.bufferData(gl.UNIFORM_BUFFER, data, gl.DYNAMIC_DRAW);
+    context.bindBuffer(context.UNIFORM_BUFFER, buffer);
+    context.bufferData(context.UNIFORM_BUFFER, data, context.DYNAMIC_DRAW);
   }
 
   destroy() {
-    this.gl.deleteProgram(this.program);
+    this.context.deleteProgram(this.program);
   }
 }

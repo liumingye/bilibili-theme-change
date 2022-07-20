@@ -2,7 +2,6 @@ import Axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { message } from 'antd';
 
 const service = Axios.create({
-  // baseURL: process.env.REACT_APP_BASE_URL,
   timeout: 50000,
 });
 
